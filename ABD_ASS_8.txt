@@ -1,0 +1,46 @@
+create table hof(hofID string,yearid int,votedBy string,ballots string,needed int,votes int,inducted int,category string,needed_note string)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+LOAD DATA LOCAL INPATH '/home/cloudera/Desktop/HallOfFame.csv' OVERWRITE INTO TABLE hof;
+
+#List the managers.
+select * from hof where category = 'Manager';
+
+#Find the numbers of votes got year wise by "chancfr01h".
+select yearid,sum(votes),hofid from hof where hofId="chancfr01h" group by yearid,hofid;
+output:
+1936	5	chancfr01h
+1937	49	chancfr01h
+1938	133	chancfr01h
+1939	158	chancfr01h
+1942	136	chancfr01h
+1945	179	chancfr01h
+1946	294	chancfr01h
+
+
+
+#Count the votes got by each person overall.
+select sum(votes),hofid from hof group by hofid;
+
+******************************************************************************************
+
+9. Using hive,partition by year.
+
+create table hof_part(hofID string,votedBy string,ballots string,needed int,votes int,inducted int,category string,needed_note string)
+partitioned by(yearid int)
+row format delimited
+fields terminated by ','
+stored as textfile;
+
+from hof hf INSERT OVERWRITE TABLE hof_part PARTITION(yearid)
+select hf.hofID,hf.votedBy,hf.ballots,hf.needed,hf.votes,hf.inducted,hf.category,hf.needed_note,hf.yearid
+DISTRIBUTE BY yearid;
+
+#find the year wise count of participants,
+select sum(votes),yearid from hof_part group by yearid;
+
+#find the total votes got by the players.
+select sum(votes),hofid from hof_part where category = 'Player' group by hofid;
+

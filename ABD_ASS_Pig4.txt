@@ -1,0 +1,34 @@
+4. Implement a PIG script to 
+a) Find the total count of participation of G 112
+
+Batting = LOAD '/home/cloudera/Desktop/Batting1.csv' USING PigStorage(',') as (playerID:chararray,yearID:int,
+stint:int,teamID:chararray,lgID:chararray,G:int,G_batting:int,
+AB:int,R:int,H:int,B2:int,B3:int,
+HR:int,RBI:int,SB:int,CS:int,
+BB:int,SO:int,IBB:int,HBP:int,
+SH:int,SF:int,GIDP:int,G_old:int);
+dump Batting;
+g_filter = Filter Batting by G==112;
+g_filter_all = GROUP g_filter all;
+total_count = foreach g_filter_all generate COUNT(g_filter.G);
+dump total_count;
+
+
+b) Find the player details with "david" 
+david  = Filter Batting by(playerID MATCHES 'david.*');
+dump david;
+
+c) Find the average count of "NL"
+NL_filter = Filter Batting by lgID =='NL';
+NL_Group = Group NL_filter All;
+NL_avg = foreach NL_Group Generate AVG(NL_filter.G_batting);
+DUMP NL_avg;
+
+d) Find the count of teams
+team_count = group Batting by teamID;
+team_group = group team_count All;
+result_count = foreach team_group generate COUNT(team_count);
+dump result_count;
+
+
+******************************************************************************************

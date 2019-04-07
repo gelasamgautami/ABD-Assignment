@@ -1,0 +1,54 @@
+1. Load batting.csv into a mysql in a database battingdb and table batting
+#create db:
+create database battingdb;
+#create table batting:
+CREATE TABLE batting (
+playerID varchar (20),
+yearID int,
+stint int,
+teamID varchar (20),
+lgID varchar (20),
+G int,
+G_batting int,
+AB int,
+R int,
+H int,
+2B int,
+3B int,
+HR int,
+RBI int,
+SB int,
+CS int,
+BB int,
+SO int,
+IBB int,
+HBP int,
+SH int,
+SF int,
+GIDP int,
+G_old int
+);
+#load table from csv:
+LOAD DATA INFILE '/home/cloudera/Desktop/Batting.csv' 
+INTO TABLE batting 
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 LINES;
+
+******************************************************************************************
+
+2. Sqoop the details into hdfs.
+#sqoop into HDFS
+sqoop import --connect jdbc:mysql://localhost/battingdb --username root --password cloudera --table batting --m 1 --target-dir /batting 
+
+******************************************************************************************
+
+
+3. Sqoop the details into hive.
+#create db  in hive
+create database sqoop_db;
+#sqoop into hive
+sqoop import --connect jdbc:mysql://localhost:3306/battingdb --username root --password cloudera --split-by yearID --table batting --target-dir /batting_hive_3 --fields-terminated-by "," --hive-import --create-hive-table --hive-table sqoop_db.batting
+
+******************************************************************************************
